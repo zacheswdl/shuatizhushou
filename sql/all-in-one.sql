@@ -1,0 +1,240 @@
+-- =============================================
+-- HJ 1237-2021 刷题助手 - 完整数据库初始化
+-- 复制全部内容，粘贴到 Supabase SQL Editor 执行
+-- =============================================
+
+-- 1. 章节表
+CREATE TABLE IF NOT EXISTS chapters (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 2. 题目表
+CREATE TABLE IF NOT EXISTS questions (
+  id TEXT PRIMARY KEY,
+  chapter_id TEXT REFERENCES chapters(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('single', 'multiple', 'judgement', 'essay')),
+  question TEXT NOT NULL,
+  options JSONB DEFAULT '[]'::jsonb,
+  answer TEXT NOT NULL,
+  explanation TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 3. 用户进度表
+CREATE TABLE IF NOT EXISTS user_progress (
+  id BIGSERIAL PRIMARY KEY,
+  device_id TEXT NOT NULL,
+  question_id TEXT NOT NULL,
+  chapter_id TEXT DEFAULT '',
+  is_practiced BOOLEAN DEFAULT false,
+  is_wrong BOOLEAN DEFAULT false,
+  is_favorite BOOLEAN DEFAULT false,
+  is_mastered BOOLEAN DEFAULT false,
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(device_id, question_id)
+);
+
+-- 4. 考试历史表
+CREATE TABLE IF NOT EXISTS exam_history (
+  id BIGSERIAL PRIMARY KEY,
+  device_id TEXT NOT NULL,
+  score INT DEFAULT 0,
+  total INT DEFAULT 0,
+  correct INT DEFAULT 0,
+  wrong INT DEFAULT 0,
+  used_time TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 5. 索引
+CREATE INDEX IF NOT EXISTS idx_questions_chapter ON questions(chapter_id);
+CREATE INDEX IF NOT EXISTS idx_progress_device ON user_progress(device_id);
+CREATE INDEX IF NOT EXISTS idx_progress_device_question ON user_progress(device_id, question_id);
+CREATE INDEX IF NOT EXISTS idx_exam_history_device ON exam_history(device_id);
+
+-- 6. 启用 RLS
+ALTER TABLE chapters ENABLE ROW LEVEL SECURITY;
+ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_history ENABLE ROW LEVEL SECURITY;
+
+-- 7. RLS 策略
+CREATE POLICY "chapters_read" ON chapters FOR SELECT USING (true);
+CREATE POLICY "chapters_write" ON chapters FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "questions_read" ON questions FOR SELECT USING (true);
+CREATE POLICY "questions_write" ON questions FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "progress_all" ON user_progress FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "exam_history_all" ON exam_history FOR ALL USING (true) WITH CHECK (true);
+
+-- =============================================
+-- 导入初始题库数据
+-- =============================================
+
+-- 章节数据
+INSERT INTO chapters (id, name, sort_order) VALUES
+  ('ch1', '单项选择题', 1),
+  ('ch2', '多项选择题', 2),
+  ('ch3', '简答题', 3),
+  ('ch4', '案例分析题', 4)
+ON CONFLICT (id) DO NOTHING;
+
+-- 题目数据
+INSERT INTO questions (id, chapter_id, type, question, options, answer, explanation) VALUES
+
+('q1', 'ch1', 'single',
+ 'HJ 1237—2021标准正式实施的时间为（   ）',
+ '["A. 2021年12月27日", "B. 2022年1月1日", "C. 2022年7月1日", "D. 2023年1月1日"]',
+ 'C',
+ '标准依据：标准前言，HJ 1237—2021于2021年12月27日批准，2022年7月1日起正式实施。'),
+
+('q2', 'ch1', 'single',
+ '排气分析仪采样管长度应小于（），不透光烟度计采样管长度应小于（   ）',
+ '["A. 7.5m、3.5m", "B. 5m、3m", "C. 8m、4m", "D. 6m、3m"]',
+ 'A',
+ '标准依据：标准4.2.4.2 d)，排气分析仪采样管长度应小于7.5 m，不透光烟度计采样管长度应小于3.5 m。'),
+
+('q3', 'ch1', 'single',
+ '检验机构每半年至少组织一次（  ），结果需记录保存归档',
+ '["A. 设备全面校准", "B. 检验能力验证和比对试验", "C. 人员岗前培训", "D. 标准物质更换"]',
+ 'B',
+ '标准依据：标准9.2，检验机构应定期组织开展检验能力验证和比对试验，每半年至少组织一次，试验结果需记录保存归档。'),
+
+('q4', 'ch1', 'single',
+ '加载减速轮边功率实测值数据修约应保留至（    ）',
+ '["A. 整数位", "B. 小数点后一位", "C. 小数点后两位", "D. 小数点后三位"]',
+ 'B',
+ '标准依据：标准8.3，加载减速轮边功率实测值保留至小数点后一位，其余排气污染物检测数据修约至与对应限值相同有效位数。'),
+
+('q5', 'ch1', 'single',
+ 'NOx转化炉的转化效率要求不小于（    ）',
+ '["A. 85%", "B. 90%", "C. 95%", "D. 98%"]',
+ 'B',
+ '标准依据：标准附录A.4、A.6，采用转化炉原理测量NOx的分析仪，NO₂转换为NO的转化效率应不小于90%，更换NO转化剂组件时必须重新检查。'),
+
+('q6', 'ch1', 'single',
+ '2018年1月1日以后生产的重型燃汽车，在定期检验时（    ）进行OBD检查且需判定结果',
+ '["A. 必须", "B. 无需", "C. 视车型而定", "D. 仅抽样"]',
+ 'A',
+ '标准依据：标准附录C.3.1，2018年1月1日以后生产的重型燃汽车，属于定期检验中强制进行OBD检查且需对结果进行判定的车辆范围。'),
+
+('q7', 'ch1', 'single',
+ '每天首次排放检验前，设备未通过预热、自检的，系统应（     ）',
+ '["A. 提示警告后继续使用", "B. 锁止", "C. 仅限制部分检测功能", "D. 由技术负责人解锁后使用"]',
+ 'B',
+ '标准依据：标准5.2，每天首次排放检验前，应进行设备预热、自检，任一项目未通过的，系统应锁止，自检通过后方可解锁使用。'),
+
+('q8', 'ch1', 'single',
+ '外观检验中，车辆排放出现目视可见黑烟或蓝烟，按标准判定（    ）不合格',
+ '["A. OBD检查", "B. 排气污染物检测", "C. 外观检验", "D. 联网核查"]',
+ 'C',
+ '标准依据：标准7.5，检验过程中车辆排放出现目视可见黑烟或蓝烟，按GB 18285和GB 3847判定外观检验不合格。'),
+
+('q9', 'ch1', 'single',
+ '插电式混合动力电动汽车检测前，发动机因电量高无法启动时，应（   ）后再检测',
+ '["A. 直接采用双怠速法", "B. 放电至发动机可启动", "C. 跳过发动机检测", "D. 强制启动纯电模式"]',
+ 'B',
+ '标准依据：标准附录D.4.2，插电式混合动力电动汽车因电量高导致发动机无法启动时，应要求车主放电至发动机可启动后，再进行排气污染物检测。'),
+
+('q10', 'ch1', 'single',
+ '视频监控摄像机的分辨率至少应达到（    ）',
+ '["A. 480p", "B. 720p", "C. 1080p", "D. 2K"]',
+ 'B',
+ '标准依据：标准附录E.5，视频监控摄像机应选用高清摄像机，分辨率至少达到720 p。'),
+
+('q11', 'ch2', 'multiple',
+ '机动车排放检验系统组成应包含的设施及仪器有（    ）',
+ '["A. 外观检验设备", "B. OBD诊断仪", "C. 排气污染物检测设备", "D. 视频监控装置", "E. 校准比对设备"]',
+ 'ABCDE',
+ '标准依据：标准4.1.2，检验系统组成应包括外观检验、OBD检查、排气污染物检测、数据采集与处理、视频监控、校准和比对等过程必要的设施及仪器。'),
+
+('q12', 'ch2', 'multiple',
+ 'OBD诊断仪应支持的通信协议包含（   ）',
+ '["A. ISO 9141", "B. SAE J1939", "C. ISO 15765", "D. SAE J1850", "E. ISO 27145"]',
+ 'ABCDE',
+ '标准依据：标准4.2.3.3，OBD诊断仪应支持但不限于ISO 9141、SAE J1939、ISO 15765、SAE J1850、ISO 27145等列出的所有通信协议。'),
+
+('q13', 'ch2', 'multiple',
+ '下列属于每次排气污染物检测前，排气分析仪需进行的校正/检查项目有（     ）',
+ '["A. 零点校正", "B. 环境空气测定", "C. 背景空气浓度取样", "D. 五点检查", "E. HC残留检查"]',
+ 'ABC',
+ '标准依据：标准附录A.2-A.6，每次排气污染物检测前，排气分析仪需完成零点校正、环境空气测定、背景空气浓度取样；五点检查仅在单点检查连续3次不通过后进行，HC残留检查为双怠速法每次测试前专属要求，非所有检测类型通用。'),
+
+('q14', 'ch2', 'multiple',
+ '典型无法采用加载减速法检测的柴油车包括（    ）',
+ '["A. 无法手动切换两驱的全时四驱车辆", "B. 最高设计速度≤50km/h的车辆", "C. 轴重超测功机承载的车辆", "D. 柴电混动无法中断电机扭矩的车辆", "E. 配备DPF的重型柴油车"]',
+ 'ABCD',
+ '标准依据：标准附录D.3.3，明确列出上述四类为典型无法采用加载减速法检测的柴油车情形；配备DPF的重型柴油车为常规车型，无检测方法使用限制。'),
+
+('q15', 'ch2', 'multiple',
+ '质量保证要求中，视频监控应记录的过程包含（）',
+ '["A. 检测设备启动", "B. 设备检查和校正", "C. 车辆排放检测", "D. 检测设备待检测", "E. 系统关机"]',
+ 'ABCDE',
+ '标准依据：标准9.3.1，视频监控应保证连续不中断，记录检测设备启动、设备检查和校正、车辆排放检测、检测设备待检测、系统关机等全部过程。'),
+
+('q16', 'ch3', 'essay',
+ '机动车排放检验的法定流程顺序是什么？省级生态环境主管部门有特殊要求时，还需增加什么检测项目？',
+ '[]',
+ '1) 法定流程顺序：联网核查→外观检验→OBD检查→排气污染物检测，需按此顺序开展，不得颠倒；
+2) 附加项目：省级生态环境主管部门确定开展汽油车燃油蒸发检测的，还应增加燃油蒸发排放控制系统检测。',
+ '标准依据：标准7.1。'),
+
+('q17', 'ch3', 'essay',
+ '简述OBD通信检查两次均未成功的后续判定及处理程序。',
+ '[]',
+ '1) 先检查所使用的OBD诊断仪是否存在故障；
+2) 确认诊断仪无故障后，查询该车辆或同车型其他车辆的OBD通信合格记录；
+3) 若无合格记录，判定该车OBD检查合格，同时记录该车OBD通信检查不合格；
+4) 若有合格记录，判定该车OBD检查不合格，要求车主维修后复检；
+5) 若同一车型至少5台车辆OBD通信检查均为不合格，作为集中超标车型上报当地生态环境主管部门；
+6) 若出现接口需拆卸、通信不稳定/死机、信息读取失败等特殊情况，记录相关情况，经检验机构技术负责人/授权签字人批准后，OBD检查按合格处理，并作为集中超标车型上报主管部门。',
+ '标准依据：标准附录C.3.4。'),
+
+('q18', 'ch3', 'essay',
+ '工况法检测无法实施时，检验机构的审批及检测要求有哪些？',
+ '[]',
+ '1) 检验机构应制定内部审批程序，对无法采用工况法的车辆，详细、如实记录具体原因；
+2) 原因记录需经检验机构技术负责人或授权签字人审核批准；
+3) 审批后，汽油车/燃气车改用双怠速法检测，柴油车改用自由加速法检测；
+4) 审批记录应随检验报告一同存档，生态环境主管部门可对审批记录进行监督抽查；
+5) 同一车辆或相同型号车辆应采用同一种检测方法，不得随意变更。',
+ '标准依据：标准7.3、附录D.3.1。'),
+
+('q19', 'ch4', 'essay',
+ '某检验机构对一辆2019年生产的重型柴油车进行排放定期检验，过程中出现以下情况：
+① 外观检验时发现车辆污染物控制装置齐全，但DPF型号无法目视识别；
+② OBD诊断仪连接后两次通信均未成功，查询记录发现该车型5台车辆OBD通信均不合格；
+③ 排气污染物检测时，因车辆无法手动关闭牵引力控制系统，无法采用加载减速法。
+
+请结合HJ 1237—2021标准，逐一分析上述情况的合规判定及后续处理要求。',
+ '[]',
+ '情况①：DPF型号无法目视识别
+合规判定：该项目外观检验合格。
+处理要求：
+1) 对污染物控制装置拍照/录制视频记录，保证照片/视频中装置基础信息清晰可见；
+2) 在外观检验记录表的DPF型号栏目填写"信息不可见"；
+3) 无需要求车主整改，按标准规定信息不可见视为污染物控制装置检查合格。
+标准依据：标准附录BA.1表BA.1注3。
+
+情况②：该车型5台车辆OBD通信均不合格
+合规判定：该车辆OBD检查按合格处理。
+处理要求：
+1) 详细记录该车辆OBD通信检查不合格的具体情况；
+2) 因该车型至少5台车辆通信检查均不合格，直接将该车型作为集中超标车型上报当地生态环境主管部门；
+3) 无需额外履行审批程序，按标准要求直接上报即可。
+标准依据：标准附录C.3.4 e)。
+
+情况③：无法关闭牵引力控制系统，无法采用加载减速法
+合规判定：该情形符合标准中无法采用加载减速法的规定，判定合规。
+处理要求：
+1) 在检验记录中详细、如实记录无法采用加载减速法的原因（车辆无法手动关闭牵引力控制系统）；
+2) 原因记录经检验机构技术负责人或授权签字人签字批准；
+3) 该车辆改用自由加速法进行排气污染物检测；
+4) 本次审批记录随检验报告一同存档，供生态环境主管部门监督抽查；
+5) 该车型其他车辆检测时，统一采用自由加速法，不得随意变更检测方法。
+标准依据：标准附录D.3.3、7.3。',
+ '本题综合考查外观检验（附录B）、OBD检查（附录C）和工况法替代检测（附录D、7.3）三个知识点，需分情况逐一分析判定并给出处理要求。')
+
+ON CONFLICT (id) DO NOTHING;

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HJ 1237-2021 刷题助手</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header" id="appHeader">
+      <button class="header-back hidden" id="btnBack" onclick="App.goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <h1 class="header-title" id="headerTitle">刷题助手</h1>
+      <div class="header-right" id="headerRight"></div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main" id="mainContent">
+      <!-- Home Page -->
+      <div class="page active" id="pageHome">
+        <div class="home-banner">
+          <div class="banner-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <div class="banner-text">
+            <h2>机动车排放定期检验规范</h2>
+            <p>HJ 1237-2021 考核练习</p>
+          </div>
+        </div>
+
+        <div class="home-stats" id="homeStats">
+          <div class="stat-card">
+            <div class="stat-num" id="statTotal">0</div>
+            <div class="stat-label">总题目</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statDone">0</div>
+            <div class="stat-label">已练习</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statWrong">0</div>
+            <div class="stat-label">错题</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statFav">0</div>
+            <div class="stat-label">收藏</div>
+          </div>
+        </div>
+
+        <div class="home-progress">
+          <div class="progress-header">
+            <span>总进度</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="home-menu">
+          <div class="menu-item" onclick="App.navigate('practice')">
+            <div class="menu-icon" style="background:#3B82F6">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div class="menu-text">
+              <div class="menu-title">章节练习</div>
+              <div class="menu-desc">按题型分章节练习，逐题巩固</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div class="menu-item" onclick="App.navigate('exam')">
+            <div class="menu-icon" style="background:#10B981">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="menu-text">
+              <div class="menu-title">模拟考试</div>
+              <div class="menu-desc">随机组卷，限时测验</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div class="menu-item" onclick="App.navigate('wrong')">
+            <div class="menu-icon" style="background:#F59E0B">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="menu-text">
+              <div class="menu-title">错题本</div>
+              <div class="menu-desc">回顾答错题目，强化薄弱点</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div class="menu-item" onclick="App.navigate('favorite')">
+            <div class="menu-icon" style="background:#EF4444">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div class="menu-text">
+              <div class="menu-title">收藏夹</div>
+              <div class="menu-desc">集中复习收藏的重点题目</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div class="menu-item" onclick="App.navigate('admin')">
+            <div class="menu-icon" style="background:#8B5CF6">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div class="menu-text">
+              <div class="menu-title">后台管理</div>
+              <div class="menu-desc">管理员题库维护</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+
+        <div class="home-reset">
+          <button class="btn-reset" onclick="App.resetProgress()">重置所有进度</button>
+        </div>
+      </div>
+
+      <!-- Practice Chapter Select -->
+      <div class="page" id="pagePractice"></div>
+
+      <!-- Practice Quiz -->
+      <div class="page" id="pagePracticeQuiz"></div>
+
+      <!-- Exam Setup -->
+      <div class="page" id="pageExam"></div>
+
+      <!-- Exam In Progress -->
+      <div class="page" id="pageExamQuiz"></div>
+
+      <!-- Exam Result -->
+      <div class="page" id="pageExamResult"></div>
+
+      <!-- Wrong Book -->
+      <div class="page" id="pageWrong"></div>
+
+      <!-- Favorites -->
+      <div class="page" id="pageFavorite"></div>
+
+      <!-- Admin -->
+      <div class="page" id="pageAdmin"></div>
+    </main>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar" id="tabBar">
+      <div class="tab-item active" data-page="home" onclick="App.switchTab('home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="tab-item" data-page="practice" onclick="App.switchTab('practice')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>练习</span>
+      </div>
+      <div class="tab-item" data-page="exam" onclick="App.switchTab('exam')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>模拟</span>
+      </div>
+      <div class="tab-item" data-page="settings" onclick="App.switchTab('wrong')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast hidden" id="toast"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+      <div class="modal" id="modal">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-actions" id="modalActions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- App Scripts -->
+  <script src="data/questions.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/practice.js"></script>
+  <script src="js/exam.js"></script>
+  <script src="js/wrong.js"></script>
+  <script src="js/favorite.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
