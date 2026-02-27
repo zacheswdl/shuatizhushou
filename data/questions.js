@@ -7,7 +7,10 @@ var QB_CHAPTERS = [
   { id: 'ch1', name: '单项选择题', order: 1 },
   { id: 'ch2', name: '多项选择题', order: 2 },
   { id: 'ch3', name: '简答题', order: 3 },
-  { id: 'ch4', name: '案例分析题', order: 4 }
+  { id: 'ch4', name: '案例分析题', order: 4 },
+  { id: 'ch_single200', name: '能力验证单选', order: 10 },
+  { id: 'ch_multi200', name: '能力验证多选', order: 11 },
+  { id: 'ch_judge200', name: '能力验证判断', order: 12 }
 ];
 
 var QB_QUESTIONS = [
