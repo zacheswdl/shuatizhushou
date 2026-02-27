@@ -265,6 +265,17 @@ var App = (function() {
 
   // ---- Init ----
   async function init() {
+    // Check activation first
+    if (!Activation.isActivated()) {
+      Activation.renderModal();
+      // Store the post-activation init function
+      window._appInitAfterActivation = function() { init(); };
+      return;
+    }
+
+    // Show app container
+    document.getElementById('app').style.display = '';
+
     // Show loading
     document.getElementById('headerTitle').textContent = '加载中...';
 
