@@ -1,0 +1,12 @@
+/**
+ * Configuration & Supabase Client Initialization
+ * 
+ * 请复制此文件为 config.js 并填入你的 Supabase 配置信息
+ */
+var CONFIG = {
+  SUPABASE_URL: 'https://your-supabase-url.supabase.co',
+  SUPABASE_ANON_KEY: 'your-supabase-anon-key'
+};
+
+// Supabase client singleton
+var supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);

@@ -1,0 +1,10 @@
+{
+  "name": "shuatizhushou",
+  "version": "1.0.0",
+  "description": "刷题助手",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "author": "",
+  "license": "MIT"
+}

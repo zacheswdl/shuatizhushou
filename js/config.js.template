@@ -1,0 +1,10 @@
+/**
+ * Configuration & Supabase Client Initialization
+ */
+var CONFIG = {
+  SUPABASE_URL: '${SUPABASE_URL}',
+  SUPABASE_ANON_KEY: '${SUPABASE_ANON_KEY}'
+};
+
+// Supabase client singleton
+var supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
